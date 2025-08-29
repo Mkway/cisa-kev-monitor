@@ -146,6 +146,42 @@ docker-compose up -d
 - **빌드 실패**: Node.js 버전 및 의존성 확인
 - **성능 이슈**: 데이터베이스 쿼리 최적화 및 캐싱 적용
 
+## Git Commit 자동화 워크플로우
+
+### 개발 진행사항 업데이트 자동화
+매번 git commit 할 때마다 다음 명령어를 순서대로 실행:
+
+```bash
+# 1. 개발 진행사항 업데이트
+python scripts/task_manager.py report
+
+# 2. 변경사항 스테이징
+git add .
+
+# 3. 커밋 (진행사항이 자동으로 포함됨)
+git commit -m "your commit message"
+
+# 4. GitHub 푸시
+git push origin main
+```
+
+### 자동화 스크립트 생성 (선택사항)
+```bash
+# scripts/auto_commit.sh 생성
+#!/bin/bash
+python scripts/task_manager.py report
+git add .
+git commit -m "$1"
+git push origin main
+
+# 사용법: ./scripts/auto_commit.sh "commit message"
+```
+
+### Claude 개발 지침
+- **매번 코드 변경 후**: task_manager.py report 실행으로 진행사항 업데이트
+- **커밋 전**: 항상 개발 진행사항 보고서 최신화
+- **GitHub 동기화**: 모든 변경사항은 즉시 원격 저장소에 반영
+
 ## 참고 문서
 - FastAPI 공식 문서: https://fastapi.tiangolo.com/
 - Next.js 공식 문서: https://nextjs.org/docs
