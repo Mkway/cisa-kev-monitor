@@ -1,0 +1,19 @@
+fastapi==0.116.1
+uvicorn==0.35.0
+sqlalchemy==2.0.43
+psycopg2-binary==2.9.10
+redis==6.4.0
+python-multipart==0.0.20
+pydantic-settings==2.10.1
+python-dotenv==1.1.1
+
+# 개발 도구
+pytest==8.3.3
+black==24.10.0
+isort==5.13.2
+mypy==1.13.0
+
+# 추가 예정 패키지
+# alembic  # 데이터베이스 마이그레이션
+# celery   # 백그라운드 작업
+# httpx    # HTTP 클라이언트
