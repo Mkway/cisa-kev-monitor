@@ -181,6 +181,7 @@ git push origin main
 - **매번 코드 변경 후**: task_manager.py report 실행으로 진행사항 업데이트
 - **커밋 전**: 항상 개발 진행사항 보고서 최신화
 - **GitHub 동기화**: 모든 변경사항은 즉시 원격 저장소에 반영
+- **커밋 메시지**: Claude Code 태그와 Co-Authored-By는 제외하고 작성 (사용자가 단독 작성자로 표시)
 
 ## 참고 문서
 - FastAPI 공식 문서: https://fastapi.tiangolo.com/

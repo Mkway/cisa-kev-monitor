@@ -1,140 +1,363 @@
-# CISA KEV 모니터링 시스템
+# CISA KEV Monitor
 
-CISA Known Exploited Vulnerabilities 데이터를 실시간으로 모니터링하고 관리하는 웹 시스템입니다.
+A real-time monitoring system for CISA Known Exploited Vulnerabilities (KEV) catalog. This web application provides up-to-date vulnerability information, search functionality, and comprehensive monitoring capabilities.
 
-## 🚀 Quick Start
+## 🚀 Features
 
-### 백엔드 서버 실행
+- **Real-time Data Sync**: Automatically synchronizes with CISA KEV API
+- **Advanced Search**: Filter vulnerabilities by CVE, vendor, product, and date
+- **Comprehensive Dashboard**: View vulnerability statistics and trends
+- **REST API**: Full API access with OpenAPI documentation
+- **Responsive Design**: Mobile-friendly interface with modern UI
+- **Docker Support**: Easy deployment with Docker Compose
+
+## 🛠 Tech Stack
+
+### Backend
+- **FastAPI**: High-performance Python web framework
+- **PostgreSQL**: Primary database for vulnerability data
+- **Redis**: Caching and session storage
+- **SQLAlchemy**: ORM with async support
+- **Pydantic**: Data validation and serialization
+
+### Frontend
+- **Next.js 15**: React framework with App Router
+- **TypeScript**: Type-safe development
+- **Tailwind CSS**: Utility-first CSS framework
+- **React Query**: Data fetching and caching
+
+## 📦 Installation
+
+### Prerequisites
+- Docker & Docker Compose
+- Python 3.11+ (for local development)
+- Node.js 18+ (for local development)
+
+### Quick Start with Docker
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Mkway/cisa-kev-monitor.git
+   cd cisa-kev-monitor
+   ```
+
+2. **Start the services**
+   ```bash
+   docker-compose up -d
+   ```
+
+3. **Initialize the database**
+   ```bash
+   # Access backend container
+   docker exec -it cisa-kev-backend bash
+   
+   # Run database initialization
+   python -m app.cli init-db
+   
+   # Sync CISA KEV data
+   python -m app.cli sync-data
+   ```
+
+4. **Access the application**
+   - Frontend: http://localhost:3000
+   - Backend API: http://localhost:8000
+   - API Documentation: http://localhost:8000/docs
+
+### Local Development
+
+#### Backend Setup
+
+1. **Navigate to backend directory**
+   ```bash
+   cd backend
+   ```
+
+2. **Create virtual environment**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # Linux/Mac
+   # or
+   venv\Scripts\activate     # Windows
+   ```
+
+3. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Start PostgreSQL and Redis**
+   ```bash
+   docker-compose up -d postgres redis
+   ```
+
+5. **Run database migrations**
+   ```bash
+   python -m app.cli init-db
+   ```
+
+6. **Start development server**
+   ```bash
+   uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+   ```
+
+#### Frontend Setup
+
+1. **Navigate to frontend directory**
+   ```bash
+   cd frontend
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Start development server**
+   ```bash
+   npm run dev
+   ```
+
+## 🎯 Usage
+
+### API Endpoints
+
+#### Vulnerabilities
+- `GET /api/vulnerabilities/` - List vulnerabilities with pagination
+- `GET /api/vulnerabilities/{cve}` - Get specific vulnerability
+- `POST /api/vulnerabilities/search` - Advanced search
+- `GET /api/vulnerabilities/stats/overview` - Get statistics
+
+#### Synchronization
+- `GET /api/sync/status` - Check sync status
+- `POST /api/sync/manual` - Trigger manual sync
+
+#### Vendors
+- `GET /api/vulnerabilities/vendors/` - List vendors
+
+### CLI Commands
+
 ```bash
+# Database operations
+python -m app.cli init-db          # Initialize database
+python -m app.cli reset-db         # Reset database
+
+# Data synchronization
+python -m app.cli sync-data        # Sync CISA KEV data
+python -m app.cli check-updates    # Check for updates
+
+# Development utilities
+python -m app.cli dev-seed         # Seed test data
+```
+
+### Automation Scripts
+
+The project includes automation scripts for development workflow:
+
+```bash
+# Project initialization
+./scripts/dev_workflow.sh init
+
+# Daily workflow
+./scripts/dev_workflow.sh start-day
+./scripts/dev_workflow.sh end-day
+
+# Development environment
+./scripts/dev_workflow.sh start-dev
+./scripts/dev_workflow.sh stop-dev
+
+# Project status
+./scripts/dev_workflow.sh status
+```
+
+## 🔧 Configuration
+
+### Environment Variables
+
+#### Backend (.env)
+```env
+DATABASE_URL=postgresql://user:password@localhost:5432/cisa_kev
+REDIS_URL=redis://localhost:6379
+CISA_KEV_API_URL=https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json
+ALLOWED_HOSTS=["http://localhost:3000"]
+```
+
+#### Frontend (.env.local)
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8000
+```
+
+## 📊 Database Schema
+
+### Main Tables
+- **vulnerabilities**: Core vulnerability data from CISA KEV
+- **vendors**: Software/hardware vendors
+- **products**: Vulnerable products
+- **sync_logs**: Data synchronization history
+
+### Key Fields
+- **CVE ID**: Common Vulnerabilities and Exposures identifier
+- **CVSS Score**: Common Vulnerability Scoring System score
+- **Known Exploited**: Whether vulnerability is actively exploited
+- **Date Added**: When vulnerability was added to KEV catalog
+- **Due Date**: Remediation deadline for federal agencies
+
+## 🧪 Testing
+
+```bash
+# Backend tests
 cd backend
-source venv/bin/activate
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+pytest
+
+# Frontend tests
+cd frontend
+npm test
+
+# Integration tests
+npm run test:e2e
 ```
 
-### 프론트엔드 서버 실행
+## 📈 Monitoring
+
+### Health Checks
+- Database connectivity: `/api/health/db`
+- Redis connectivity: `/api/health/redis`
+- External API: `/api/health/external`
+
+### Logs
+- Application logs: `backend/logs/app.log`
+- Access logs: `backend/logs/access.log`
+- Sync logs: Database table `sync_logs`
+
+## 🚀 Deployment
+
+### Production Deployment
+
+1. **Update environment files**
+   ```bash
+   cp .env.example .env
+   # Edit .env with production values
+   ```
+
+2. **Build and deploy**
+   ```bash
+   docker-compose -f docker-compose.prod.yml up -d
+   ```
+
+3. **Initialize production database**
+   ```bash
+   docker exec -it cisa-kev-backend python -m app.cli init-db
+   docker exec -it cisa-kev-backend python -m app.cli sync-data
+   ```
+
+### SSL Configuration
+Configure reverse proxy (nginx) for HTTPS:
+
+```nginx
+server {
+    listen 443 ssl;
+    server_name your-domain.com;
+    
+    ssl_certificate /path/to/cert.pem;
+    ssl_certificate_key /path/to/key.pem;
+    
+    location / {
+        proxy_pass http://localhost:3000;
+    }
+    
+    location /api {
+        proxy_pass http://localhost:8000;
+    }
+}
+```
+
+## 📝 API Documentation
+
+- **OpenAPI Spec**: Available at `/docs` (Swagger UI)
+- **ReDoc**: Available at `/redoc`
+- **OpenAPI JSON**: Available at `/openapi.json`
+
+### Example API Usage
+
+```javascript
+// Fetch vulnerabilities
+const response = await fetch('/api/vulnerabilities/?page=1&per_page=10');
+const data = await response.json();
+
+// Search vulnerabilities
+const searchResponse = await fetch('/api/vulnerabilities/search', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    query: 'Microsoft',
+    dateFrom: '2024-01-01',
+    dateTo: '2024-12-31'
+  })
+});
+```
+
+## 🤝 Contributing
+
+1. **Fork the repository**
+2. **Create feature branch**: `git checkout -b feature/new-feature`
+3. **Commit changes**: `git commit -m "Add new feature"`
+4. **Push to branch**: `git push origin feature/new-feature`
+5. **Create Pull Request**
+
+### Development Guidelines
+- Follow Python PEP 8 style guide
+- Use TypeScript strict mode
+- Write unit tests for new features
+- Update documentation for API changes
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+#### Database Connection Failed
 ```bash
-cd frontend  
-npm run dev
+# Check PostgreSQL container
+docker-compose logs postgres
+
+# Restart database
+docker-compose restart postgres
 ```
 
-### 서비스 접속
-- **프론트엔드**: http://localhost:3000
-- **백엔드 API**: http://localhost:8000
-- **API 문서**: http://localhost:8000/docs
-
-## 📊 현재 구현 상태
-
-### ✅ 완료된 기능
-
-#### 백엔드 (FastAPI)
-- [x] FastAPI 프로젝트 설정 및 구조화
-- [x] PostgreSQL 데이터베이스 스키마 설계
-- [x] SQLAlchemy ORM 모델 (Vendor, Product, Vulnerability, History, SyncStatus)
-- [x] CISA KEV 데이터 동기화 서비스
-  - 1,405개 취약점 데이터 수집 완료
-  - 자동 중복 제거 및 정규화
-  - 백그라운드 동기화 지원
-- [x] 완전한 REST API 엔드포인트
-  - 취약점 목록 조회 (페이지네이션, 정렬, 필터링)
-  - CVE 상세 정보 조회
-  - 고급 검색 (POST /api/vulnerabilities/search)
-  - 통계 정보 (전체/벤더/월별)
-  - 벤더/제품 목록
-  - 동기화 관리 API
-- [x] Swagger UI 문서화 (/docs)
-
-#### 프론트엔드 (Next.js)
-- [x] Next.js 15 + TypeScript 프로젝트 설정
-- [x] Tailwind CSS 디자인 시스템
-- [x] 타입 안전한 API 클라이언트 (axios)
-- [x] UI 컴포넌트 라이브러리
-  - Button, Card, Input, Badge, Pagination
-- [x] 취약점 관련 컴포넌트
-  - VulnerabilityCard (취약점 카드 표시)
-  - SearchAndFilters (검색 및 필터링 UI)
-- [x] 메인 대시보드 페이지
-  - 실시간 통계 카드
-  - 취약점 목록 표시 (카드 형태)
-  - 페이지네이션 지원
-  - 고급 검색 및 필터링
-  - 반응형 디자인
-
-### 🚧 개발 예정 (Phase 2)
-- [ ] 취약점 상세 페이지
-- [ ] 실시간 WebSocket 알림
-- [ ] 사용자 인증/인가
-- [ ] 개인화된 대시보드
-- [ ] 데이터 시각화 차트
-
-### 🔮 향후 계획 (Phase 3)
-- [ ] 이메일/Slack 알림
-- [ ] 내보내기 기능 (CSV/PDF)
-- [ ] 성능 최적화 (Redis 캐싱)
-- [ ] 모바일 앱 지원
-
-## 📊 데이터베이스 현황
-
-현재 데이터베이스에 저장된 데이터:
-- **취약점**: 1,405개
-- **벤더**: 340개 (Microsoft, Adobe, Google 등)
-- **제품**: 500개 이상
-- **랜섬웨어 관련**: 다수 (known_ransomware_use=true)
-
-## 🛠️ 기술 스택
-
-- **백엔드**: Python 3.11, FastAPI, SQLAlchemy, PostgreSQL
-- **프론트엔드**: Next.js 15, TypeScript, Tailwind CSS, Axios
-- **데이터베이스**: PostgreSQL (Docker)
-- **캐싱**: Redis (향후)
-- **배포**: Docker, Docker Compose
-
-## 🏗️ 프로젝트 구조
-
-```
-kev/
-├── backend/                  # FastAPI 백엔드
-│   ├── app/
-│   │   ├── api/              # API 라우터
-│   │   │   └── endpoints/    # 엔드포인트 구현
-│   │   ├── models/           # SQLAlchemy 모델
-│   │   ├── schemas/          # Pydantic 스키마
-│   │   ├── services/         # 비즈니스 로직
-│   │   └── core/             # 설정 및 데이터베이스
-│   └── venv/                 # Python 가상환경
-├── frontend/                 # Next.js 프론트엔드
-│   ├── src/
-│   │   ├── app/              # Next.js App Router
-│   │   ├── components/       # React 컴포넌트
-│   │   │   ├── ui/           # 공통 UI 컴포넌트
-│   │   │   └── vulnerability/# 취약점 관련 컴포넌트
-│   │   ├── api/              # API 클라이언트
-│   │   ├── types/            # TypeScript 타입
-│   │   └── lib/              # 유틸리티 함수
-│   └── node_modules/
-├── docker-compose.yml        # Docker 환경
-└── docs/                     # 문서
+#### CORS Errors
+```bash
+# Check CORS settings in backend/app/core/config.py
+# Ensure frontend URL is in ALLOWED_HOSTS
 ```
 
-## 📋 개발 가이드
+#### Build Failures
+```bash
+# Clean build cache
+docker-compose down -v
+docker-compose build --no-cache
+```
 
-자세한 개발 가이드라인은 [CLAUDE.md](./CLAUDE.md) 파일을 참조하세요.
+#### External Access Issues
+For WSL/local development with external access:
+1. Update `ALLOWED_HOSTS` with your IP address
+2. Configure firewall rules
+3. Update frontend `NEXT_PUBLIC_API_URL`
 
-## 🔒 보안 고려사항
+## 📄 License
 
-- API 응답에서 민감 정보 제외
-- SQL 인젝션 방지 (SQLAlchemy 사용)
-- XSS 방지 (입력값 검증)
-- CORS 설정 적용
-- 환경 변수를 통한 설정 관리
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 📈 성능 최적화
+## 🙏 Acknowledgments
 
-- 데이터베이스 인덱싱 적용
-- 페이지네이션으로 대용량 데이터 처리
-- API 응답 최적화
-- 프론트엔드 코드 스플리팅 (Next.js)
+- [CISA](https://www.cisa.gov/) for providing the KEV catalog
+- [FastAPI](https://fastapi.tiangolo.com/) for the excellent web framework
+- [Next.js](https://nextjs.org/) for the React framework
+- Open source community for all the amazing tools and libraries
+
+## 📞 Support
+
+- **Issues**: [GitHub Issues](https://github.com/Mkway/cisa-kev-monitor/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/Mkway/cisa-kev-monitor/discussions)
+- **Email**: mkway1004@gmail.com
 
 ---
 
-**최종 업데이트**: 2025-08-29  
-**버전**: MVP 1.0 완료
+**🔒 Security Notice**: This tool is designed for defensive security purposes only. It helps security teams monitor and respond to known vulnerabilities. Please use responsibly and in accordance with your organization's security policies.
